@@ -26,3 +26,20 @@ func  In_random_order(arr_in interface{}) interface{} {
 	}
 	return arr
 }
+
+//return a list of index in random order
+func  In_random_index(index int ) [] int {
+	list := make([] int, index)
+	for i,_ := range list{
+		list[i] = i
+	}
+
+	now := int64(time.Millisecond)
+	rand.Seed(now)
+	arr := list
+	for i := len(arr) - 1; i > 0; i-- {
+		j := rand.Intn(i)
+		arr[i], arr[j] = arr[j], arr[i]
+	}
+	return arr
+}

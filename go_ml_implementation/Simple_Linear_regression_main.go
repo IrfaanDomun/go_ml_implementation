@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 	"math/rand"
-	"Machine-learning-Go/go_ml_implementation/Unsupervised/Linear_regression"
+	"Machine-learning-Go/go_ml_implementation/Supervised/Linear_regression"
+	"Machine-learning-Go/go_ml_implementation/StochasticGradientDescent"
 )
 
 func main() {
@@ -16,10 +17,10 @@ func main() {
 	fmt.Println(daily_minutes_good)
 	//
 	alpha, beta := Linear_regression.Least_squares_fit(num_friends_good, daily_minutes_good)
-	fmt.Println( "alpha", alpha
-	fmt.Println( "beta", beta
+	fmt.Println( "alpha", alpha)
+	fmt.Println( "beta", beta)
 
-	fmt.Println( "r-squared", Linear_regression.R_squared(alpha, beta, num_friends_good, daily_minutes_good)
+	fmt.Println( "r-squared", Linear_regression.R_squared(alpha, beta, num_friends_good, daily_minutes_good))
 	//
 	//
 	fmt.Println( "gradient descent:")
@@ -27,7 +28,7 @@ func main() {
 	rand.Seed(0)
 	//random.seed(0)
 	theta := [] float64{rand.Float64(), rand.Float64()}
-	alpha, beta = Minimize_stochastic(Linear_regression.Squared_error,
+	alpha, beta = StochasticGradientDescent.Minimize_stochastic(Linear_regression.Squared_error,
 		Linear_regression.Squared_error_gradient,
 		num_friends_good,
 		daily_minutes_good,

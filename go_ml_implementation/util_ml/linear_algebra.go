@@ -5,15 +5,34 @@ import (
 	"math"
 )
 
-////compute the dot product of two vector
-//func  Dot(x_i float64 , beta  float64 )  float64{
-//	res := float64(0)
-//	for i := range x_i {
-//		res += x_i[i] * beta[i]
-//	}
-//	return res
-//}
+//compute the dot product of two vector
+func  Dot(x_i []float64 , beta  []float64 )  float64{
+	res := 0.0
+	for i := range x_i {
+		res += x_i[i] * beta[i]
+	}
+	return res
+}
 
+//def scalar_multiply(c, v):
+func Scalar_multiply(c float64 ,v [] float64) [] float64{
+	res := make([] float64,len(v))
+	for i,_ := range v{
+		res[i] = v[i] *c
+	}
+	return res
+	//return [c * v_i for v_i in v]
+}
+//def vector_add(v, w):
+//"""adds two vectors componentwise"""
+func Vector_add(v,w [] float64) [] float64{
+	//return [v_i + w_i for v_i, w_i in zip(v,w)]
+	res := make([] float64,len(v))
+	for i,_ := range v{
+		res[i] = v[i] + w[i]
+	}
+	return res
+}
 //def vector_subtract(v, w):
 //"""subtracts two vectors componentwise"""
 func Vector_subtract(v,w [] float64) []float64{
