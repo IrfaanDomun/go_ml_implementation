@@ -3,6 +3,7 @@ package Linear_regression
 import (
 	"math"
 	"Machine-learning-Go/go_ml_implementation/util_ml"
+//	"fmt"
 )
 
 func Predict(alpha, beta,x_i float64) float64 {
@@ -58,7 +59,7 @@ func R_squared(alpha, beta float64, x,y [] float64) float64{
 	//total_sum_of_squares(y))
 }
 //def squared_error(x_i, y_i, theta):
-func Squared_error( x_i,y_i, float64, theta [] float64) float64 {
+func Squared_error( x_i,y_i float64, theta [] float64) float64 {
 	alpha := theta[0]
 	beta := theta[1]
 	//alpha, beta = theta
@@ -68,7 +69,7 @@ func Squared_error( x_i,y_i, float64, theta [] float64) float64 {
 	//
 }
 //def squared_error_gradient(x_i, y_i, theta):
-func Squared_error_gradient(x_i,y_i, float64, theta [] float64)([]float64) {
+func Squared_error_gradient(x_i,y_i float64, theta [] float64)([]float64) {
 	alpha := theta[0]
 	beta := theta[1]
 	res := make([] float64,2)

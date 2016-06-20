@@ -4,6 +4,7 @@ import (
 
 	"math"
 	"Machine-learning-Go/go_ml_implementation/util_ml"
+	"math/rand"
 )
 
 
@@ -224,16 +225,16 @@ func Minimize_stochastic(target_fn func( float64, float64, [] float64) float64 ,
 	min_theta := [] float64{}
 	min_value := math.Inf(1)
 	iterations_with_no_improvement := 0
-
+	len_x := len(x)
 	//
 	//# if we ever go 100 iterations with no improvement, stop
 	//while iterations_with_no_improvement < 100:
 	//value = sum( target_fn(x_i, y_i, theta) for x_i, y_i in data )
 	//
-	for iterations_with_no_improvement < 100 {
+	for iterations_with_no_improvement < 100{
 		value := 0.0
-		for i,_ := range x{
-			value += target_fn(x[i],y[i], theta)
+		for i, _ := range x {
+			value += target_fn(x[i], y[i], theta)
 		}
 		//if value < min_value:
 		//# if we've found a new minimum, remember it
@@ -246,29 +247,35 @@ func Minimize_stochastic(target_fn func( float64, float64, [] float64) float64 ,
 		//iterations_with_no_improvement += 1
 		//alpha *= 0.9
 		//
-		if value < min_value{
+		if value < min_value {
 			//# if we've found a new minimum, remember it
 			//# and go back to the original step size
 			min_theta, min_value = theta, value
 			iterations_with_no_improvement = 0
 			alpha = alpha_0
-		}else{
+		} else {
 			//# otherwise we're not improving, so try shrinking the step size
 			iterations_with_no_improvement += 1
 			alpha *= 0.9
 		}
-	}
-	//# and take a gradient step for each of the data points
-	//for x_i, y_i in in_random_order(data):
-	//gradient_i = gradient_fn(x_i, y_i, theta)
-	//theta = vector_subtract(theta, scalar_multiply(alpha, gradient_i))
-	//
-	//# and take a gradient step for each of the data points
-	for i := range util_ml.In_random_index(len(x)){
-		gradient_i := gradient_fn(x[i],y[i], theta)
-		theta = util_ml.Vector_subtract(theta,util_ml.Scalar_multiply(alpha,gradient_i))
 
+		//# and take a gradient step for each of the data points
+		//for x_i, y_i in in_random_order(data):
+		//gradient_i = gradient_fn(x_i, y_i, theta)
+		//theta = vector_subtract(theta, scalar_multiply(alpha, gradient_i))
+		//
+		//# and take a gradient step for each of the data points
+		//t3 := time.Now()
+		a:= rand.Perm(len_x)
+		//fmt.Println("t3",t3.Sub(time.Now()))
+		for _,i := range a {
+			gradient_i := gradient_fn(x[i], y[i], theta)
+			theta = util_ml.Vector_subtract(theta, util_ml.Scalar_multiply(alpha, gradient_i))
+
+		}
 	}
+	//fmt.Println(theta, alpha, min_theta, min_value, iterations_with_no_improvement)
+
 	return min_theta[0], min_theta[1]
 
 	//return min_theta
