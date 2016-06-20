@@ -265,16 +265,11 @@ func Minimize_stochastic(target_fn func( float64, float64, [] float64) float64 ,
 		//theta = vector_subtract(theta, scalar_multiply(alpha, gradient_i))
 		//
 		//# and take a gradient step for each of the data points
-		//t3 := time.Now()
-		a:= rand.Perm(len_x)
-		//fmt.Println("t3",t3.Sub(time.Now()))
-		for _,i := range a {
+		for _,i := range rand.Perm(len_x) {
 			gradient_i := gradient_fn(x[i], y[i], theta)
 			theta = util_ml.Vector_subtract(theta, util_ml.Scalar_multiply(alpha, gradient_i))
-
 		}
 	}
-	//fmt.Println(theta, alpha, min_theta, min_value, iterations_with_no_improvement)
 
 	return min_theta[0], min_theta[1]
 
