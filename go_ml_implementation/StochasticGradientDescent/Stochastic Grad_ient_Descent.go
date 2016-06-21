@@ -212,7 +212,7 @@ func Minimize_batch( target_fn func([] float64)float64, gradient_fn func([] floa
 func Minimize_stochastic(target_fn func( float64, float64, [] float64) float64 ,
 		         gradient_fn func( float64, float64, [] float64) [] float64,
 		         x,y, theta_0[] float64,
-		         alpha_0 float64) (float64,float64){
+		         alpha_0 float64) ([]float64){
 
 	//data = zip(x, y)
 	//theta = theta_0                             # initial guess
@@ -271,11 +271,84 @@ func Minimize_stochastic(target_fn func( float64, float64, [] float64) float64 ,
 		}
 	}
 
-	return min_theta[0], min_theta[1]
+	return min_theta
 
 	//return min_theta
 	//
 }
+
+func Minimize_stochastic_multi(target_fn func( [] float64, float64, [] float64) float64 ,
+gradient_fn func( [] float64, float64, [] float64) [] float64,
+x [][]float64,y, theta_0[] float64,
+alpha_0 float64) ([]float64){
+
+	//data = zip(x, y)
+	//theta = theta_0                             # initial guess
+	//alpha = alpha_0                             # initial step size
+	//min_theta, min_value = None, float("inf")   # the minimum so far
+	//iterations_with_no_improvement = 0
+	theta := make([] float64, len(theta_0))
+	alpha := alpha_0
+	copy(theta,theta_0)
+	min_theta := [] float64{}
+	min_value := math.Inf(1)
+	iterations_with_no_improvement := 0
+	len_x := len(x)
+
+	//
+	//# if we ever go 100 iterations with no improvement, stop
+	//while iterations_with_no_improvement < 100:
+	//value = sum( target_fn(x_i, y_i, theta) for x_i, y_i in data )
+	//
+	for iterations_with_no_improvement < 100{
+		value := 0.0
+		for i, _ := range x {
+			value += target_fn(x[i], y[i], theta)
+			//fmt.Println(value)
+		}
+		//fmt.Println("Done")
+		//if value < min_value:
+		//# if we've found a new minimum, remember it
+		//# and go back to the original step size
+		//min_theta, min_value = theta, value
+		//iterations_with_no_improvement = 0
+		//alpha = alpha_0
+		//else:
+		//# otherwise we're not improving, so try shrinking the step size
+		//iterations_with_no_improvement += 1
+		//alpha *= 0.9
+		//
+		if value < min_value {
+			//# if we've found a new minimum, remember it
+			//# and go back to the original step size
+			min_theta, min_value = theta, value
+			iterations_with_no_improvement = 0
+			alpha = alpha_0
+		} else {
+			//# otherwise we're not improving, so try shrinking the step size
+			iterations_with_no_improvement += 1
+			alpha *= 0.9
+		}
+
+		//# and take a gradient step for each of the data points
+		//for x_i, y_i in in_random_order(data):
+		//gradient_i = gradient_fn(x_i, y_i, theta)
+		//theta = vector_subtract(theta, scalar_multiply(alpha, gradient_i))
+		//
+		//# and take a gradient step for each of the data points
+		for _,i := range rand.Perm(len_x) {
+			//fmt.Println(i)
+			gradient_i := gradient_fn(x[i], y[i], theta)
+			theta = util_ml.Vector_subtract(theta, util_ml.Scalar_multiply(alpha, gradient_i))
+		}
+	}
+
+	return min_theta
+
+	//return min_theta
+	//
+}
+
 //def maximize_stochastic(target_fn, gradient_fn, x, y, theta_0, alpha_0=0.01):
 //return minimize_stochastic(negate(target_fn),
 //negate_all(gradient_fn),

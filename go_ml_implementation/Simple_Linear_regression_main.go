@@ -28,12 +28,14 @@ func main() {
 	// choose random value to start
 	rand.Seed(time.Now().Unix())
 	theta := [] float64{rand.Float64(), rand.Float64()}
-	alpha, beta = StochasticGradientDescent.Minimize_stochastic(Linear_regression.Squared_error,
+	list_beta := StochasticGradientDescent.Minimize_stochastic(Linear_regression.Squared_error,
 		Linear_regression.Squared_error_gradient,
 		num_friends_good,
 		daily_minutes_good,
 		theta,
 		0.0001)
+	alpha = list_beta[0]
+	beta = list_beta[1]
 	fmt.Println( "alpha", alpha)
 	fmt.Println( "beta", beta)
 }

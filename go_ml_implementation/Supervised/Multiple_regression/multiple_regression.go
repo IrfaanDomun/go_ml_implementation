@@ -1,6 +1,19 @@
 package Multiple_regression
 
-import "github.com/gonum/floats"
+import (
+	"github.com/gonum/floats"
+	"math/rand"
+	"Machine-learning-Go/go_ml_implementation/StochasticGradientDescent"
+//	"Machine-learning-Go/go_ml_implementation/util_ml"
+//	"fmt"
+//	"fmt"
+	"Machine-learning-Go/go_ml_implementation/Supervised/Linear_regression"
+	"Machine-learning-Go/go_ml_implementation/util_ml"
+//	"math"
+
+	"sync"
+//	"fmt"
+)
 
 /*
 from __future__ import division
@@ -15,27 +28,50 @@ import math, random
 import time
 
 t = time.time()
-*/
 
-//def predict(x_i, beta):
-//    return dot(x_i, beta)
-func Predict( x_i, beta [] float64) float64 {
+
+*/
+/*
+def predict(x_i, beta):
+    return dot(x_i, beta)
+*/
+func Predict(x_i []float64, beta [] float64)float64{
+	//fmt.Println(x_i,beta,floats.Dot(x_i,beta))
 	return floats.Dot(x_i,beta)
 }
 /*
 def error(x_i, y_i, beta):
     return y_i - predict(x_i, beta)
 */
-func Error(x_i,y_i, beta [] float64)
+func Error(x_i [] float64, y_i float64, beta [] float64)float64{
+	return y_i - Predict(x_i,beta)
+}
 /*
 def squared_error(x_i, y_i, beta):
     return error(x_i, y_i, beta) ** 2
 
+*/
+func Squared_error(x_i [] float64,y_i float64, beta[] float64)float64{
+	temp := Error(x_i,y_i,beta)
+	return temp*temp
+}
+/*
 def squared_error_gradient(x_i, y_i, beta):
     """the gradient corresponding to the ith squared error term"""
     return [-2 * x_ij * error(x_i, y_i, beta)
             for x_ij in x_i]
 
+*/
+func Squared_error_gradient(x_i [] float64, y_i float64, beta [] float64) [] float64{
+	len_xi := len(x_i)
+	res := make([] float64, len_xi)
+	err := Error(x_i,y_i,beta)
+	for i,j := range x_i{
+		res[i] = -2 * j * err
+	}
+	return res
+}
+/*
 def estimate_beta(x, y):
     beta_initial = [random.random() for x_i in x[0]]
     return minimize_stochastic(squared_error,
@@ -43,54 +79,162 @@ def estimate_beta(x, y):
                                x, y,
                                beta_initial,
                                0.001)
-
+*/
+func Estimate_beta(x[][]float64,y [] float64) []float64{
+	rand.Seed(0)
+	len_x0 := len(x[0])
+	beta_initial := make([] float64, len_x0)
+	for i,_ := range x[0]{
+		beta_initial[i] = rand.Float64()
+	}
+	beta_initial = [] float64{0.8444218515250481, 0.7579544029403025, 0.420571580830845, 0.25891675029296335}
+	return StochasticGradientDescent.Minimize_stochastic_multi(Squared_error,
+		Squared_error_gradient,
+		x,y,
+		beta_initial,
+		0.001)
+}
+/*
 def multiple_r_squared(x, y, beta):
     sum_of_squared_errors = sum(error(x_i, y_i, beta) ** 2
                                 for x_i, y_i in zip(x, y))
     return 1.0 - sum_of_squared_errors / total_sum_of_squares(y)
 
+*/
+func Multiple_r_squared(x [][] float64,y [] float64, beta [] float64) float64{
+	sum_of_squared_errors := 0.0
+	for i,y_i := range y{
+		sum_of_squared_errors += Squared_error(x[i],y_i,beta)
+	}
+	return 1.0 - sum_of_squared_errors / Linear_regression.Total_sum_of_squares(y)
+}
+/*
 def bootstrap_sample(data):
     """randomly samples len(data) elements with replacement"""
     return [random.choice(data) for _ in data]
 
+*/
+func Bootstrap_sample(data [] float64)[]float64{
+	len_data := len(data)
+	res := make( [] float64, len_data)
+	//random_index := rand.Perm(len_data)
+	for i, j := range data{
+		j = data[rand.Intn(len_data)]
+		//fmt.Println(i,j)
+
+		res[i] = j
+	}
+	return res
+}
+func Bootstrap_sample_multi(x [][] float64, y[] float64)([][] float64, []float64){
+	len_x := len(x)
+	len_y := len(y)
+	res_x := make([][] float64, len_x)
+	res_y := make( [] float64, len_y)
+	//random_index := rand.Perm(len_y)
+	for i, _ := range x{
+			j := rand.Intn(len_x)
+			res_x[i] = x[j]
+			res_y[i] = y[j]
+	}
+	return res_x,res_y
+}
+/*
 def bootstrap_statistic(data, stats_fn, num_samples):
     """evaluates stats_fn on num_samples bootstrap samples from data"""
     return [stats_fn(bootstrap_sample(data))
             for _ in range(num_samples)]
 
+*/
+//"""evaluates stats_fn on num_samples bootstrap samples from data"""
+func Bootstrap_statistic(
+y [] float64,
+stats_fn func( []float64) float64,
+num_samples int )( [] float64) {
+	res_y := make([] float64, num_samples)
+	for i := 0; i < num_samples; i++ {
+		temp := Bootstrap_sample(y)
+		 res_y[i] = stats_fn(temp)
+	}
+	return  res_y
+}
+func Bootstrap_statistic_multi( x [][] float64,
+			y [] float64,
+			stats_fn func([][]float64, []float64) ([] float64),
+			num_samples int )([][]float64){
+	res_x :=  make([][] float64, num_samples)
+	w := sync.WaitGroup{}
+	w.Add(num_samples)
+	for i:=0; i<num_samples;i++{
+		go func(i int) {
+			temp1, temp2 := Bootstrap_sample_multi(x, y)
+			res_x[i] = stats_fn(temp1, temp2)
+			w.Done()
+		}(i)
+	}
+	w.Wait()
+	return res_x
+}
+/*
 def estimate_sample_beta(sample):
     x_sample, y_sample = zip(*sample) # magic unzipping trick
     return estimate_beta(x_sample, y_sample)
 
+*/
+func Estimate_sample_beta(sample_x [][] float64, sample_y [] float64)[]float64{
+	return Estimate_beta(sample_x, sample_y)
+}
+/*
 def p_value(beta_hat_j, sigma_hat_j):
     if beta_hat_j > 0:
         return 2 * (1 - normal_cdf(beta_hat_j / sigma_hat_j))
     else:
         return 2 * normal_cdf(beta_hat_j / sigma_hat_j)
-
+*/
+func P_value(beta_hat_j, sigma_hat_j float64) float64{
+	mu := 0.0
+	sigma := 0.0
+	if beta_hat_j > 0.0{
+		return 2 * (1 - util_ml.Normal_cdf(beta_hat_j/ sigma_hat_j, mu, sigma))
+	}else
+	{
+		return 2 * util_ml.Normal_cdf(beta_hat_j/ sigma_hat_j, mu, sigma)
+	}
+}
+/*
 #
 # REGULARIZED REGRESSION
 #
 
 # alpha is a *hyperparameter* controlling how harsh the penalty is
 # sometimes it's called "lambda" but that already means something in Python
+*/
+/*
 def ridge_penalty(beta, alpha):
   return alpha * dot(beta[1:], beta[1:])
 
+*/
+/*
 def squared_error_ridge(x_i, y_i, beta, alpha):
     """estimate error plus ridge penalty on beta"""
     return error(x_i, y_i, beta) ** 2 + ridge_penalty(beta, alpha)
 
+*/
+/*
 def ridge_penalty_gradient(beta, alpha):
     """gradient of just the ridge penalty"""
     return [0] + [2 * alpha * beta_j for beta_j in beta[1:]]
 
+*/
+/*
 def squared_error_ridge_gradient(x_i, y_i, beta, alpha):
     """the gradient corresponding to the ith squared error term
     including the ridge penalty"""
     return vector_add(squared_error_gradient(x_i, y_i, beta),
                       ridge_penalty_gradient(beta, alpha))
 
+*/
+/*
 def estimate_beta_ridge(x, y, alpha):
     """use gradient descent to fit a ridge regression
     with penalty alpha"""
@@ -102,6 +246,8 @@ def estimate_beta_ridge(x, y, alpha):
                                beta_initial,
                                0.001)
 
+*/
+/*
 def lasso_penalty(beta, alpha):
     return alpha * sum(abs(beta_i) for beta_i in beta[1:])
 

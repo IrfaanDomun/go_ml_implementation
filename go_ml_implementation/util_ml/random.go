@@ -11,6 +11,11 @@ func Random(min, max int) float64 {
 	rand.Seed(time.Now().Unix())
 	return rand.Float64()*float64(max - min) + float64(min)
 }
+//get a random number between a range
+func RandomInt(min, max int) int {
+	rand.Seed(time.Now().Unix())
+	return rand.Intn(max - min) + (min)
+}
 
 
 
