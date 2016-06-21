@@ -64,6 +64,16 @@ if __name__ == "__main__":
 
 	bootstrap_betas := Multiple_regression.Bootstrap_statistic_multi(x,daily_minutes_good,Multiple_regression.Estimate_beta,100)
 	fmt.Println(bootstrap_betas)
+	bootstrap_standard_errors := make([]float64,len(x[0]))
+	for i :=0; i< len(x[0]);i++ {
+		temp := make([]float64,len(bootstrap_betas))
+		for k,j := range bootstrap_betas{
+			temp[k] = j[i]
+		}
+		bootstrap_standard_errors[i] = util_ml.Standard_deviation(temp)
+	}
+	fmt.Println( "bootstrap standard errors", bootstrap_standard_errors)
+
 	//bootstrap_standard_errors Standard
 /*
     random.seed(0) # so that you get the same results as me
@@ -75,7 +85,15 @@ if __name__ == "__main__":
     bootstrap_standard_errors = [
         standard_deviation([beta[i] for beta in bootstrap_betas])
         for i in range(4)]*/
+	fmt.Println()
 
+	fmt.Println( "p_value(30.63, 1.174)", Multiple_regression.P_value(30.63, 1.174))
+	fmt.Println( "p_value(0.972, 0.079)", Multiple_regression.P_value(0.972, 0.079))
+	fmt.Println( "p_value(-1.868, 0.131)", Multiple_regression.P_value(-1.868, 0.131))
+	fmt.Println( "p_value(0.911, 0.990)", Multiple_regression.P_value(0.911, 0.990))
+	fmt.Println()
+
+	fmt.Println( "regularization")
 /*    print "bootstrap standard errors", bootstrap_standard_errors
     print
 
@@ -98,5 +116,5 @@ if __name__ == "__main__":
 print time.time() - t*/
 
 
-fmt.Println(t.Sub(time.Now()))
+fmt.Println(time.Now().Sub(t))
 }
