@@ -63,7 +63,6 @@ if __name__ == "__main__":
 	fmt.Println()
 
 	bootstrap_betas := Multiple_regression.Bootstrap_statistic_multi(x,daily_minutes_good,Multiple_regression.Estimate_beta,100)
-	fmt.Println(bootstrap_betas)
 	bootstrap_standard_errors := make([]float64,len(x[0]))
 	for i :=0; i< len(x[0]);i++ {
 		temp := make([]float64,len(bootstrap_betas))
